@@ -6,6 +6,8 @@ import pandas as pd
 from datetime import date, datetime
 from io import BytesIO
 from pyxlsb import open_workbook as open_xlsb
+from awesome_table import AwesomeTable
+from awesome_table.column import (Column, ColumnDType)
 
 # ocultar menu
 hide_streamlit_style = """
@@ -35,7 +37,7 @@ json = {
   "universe_domain": st.secrets["universe_domain"],
 }
 
-creds = ServiceAccountCredentials.from_json_keyfile_name(json, scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(json, scope)
 
 cliente = gspread.authorize(creds)
 
@@ -47,6 +49,18 @@ dados = sheet.get_all_records()  # Get a list of all records
 
 df = pd.DataFrame(dados)
 df = df.astype(str)
+
+
+
+areas = ['Ar-Condicionado ou Refrigeração','Elétrica ou Iluminação','Rede de Água ou Esgoto','Outros']
+tipos = {
+    areas[0]: ['Não está gelando','Não está ligando','Está pingando','Retirada ou instalação de aparelho','Fazendo barulho alto','Controle não funciona','Outros'],
+    areas[1]: ['Tomada (instalação/desinstalação/manutenção)','Iluminação (instalação/desinstalação/manutenção)','Manutenção em quadro elétrico','Falta de energia','Outros'],
+    areas[2]: ['Falta de água','Vazamento de água ou esgoto','Entupimento','Louças e Metais/Instalação ou Reparo','Vaso Sanitário ou Mictório (instalação/desinstalação/manutenção)','Pia (instalação/desinstalação/manutenção)','Outros','Bebedouros','Reservatório'],
+    areas[3]: ['Porta/Fechadura/Janelas/Vidros','Pintura','Passarela e Calçada','Cobertura/Telhado','Alvenaria/Reparos','Outros','Revestimentos','Estrutura']
+}
+
+
 
 #
 datando = []
@@ -189,8 +203,8 @@ if (pg == 'Edição individual'):
         # st.text('<p style="font-family:Courier; color:Blue; font-size: 20px;">Nome: '+ nome[n]+'</p>',unsafe_allow_html=True)
 
         st.markdown(padrao + '<b>Nome</b>: ' + str(nome_solicitante[n]) + '</p>', unsafe_allow_html=True)
-        st.markdown(padrao + '<b>Área</b>: ' + str(area_manutencao[n]) + '</p>', unsafe_allow_html=True)
-        st.markdown(padrao + '<b>Tipo de solicitação</b>: ' + str(tipo_solicitacao[n]) + '</p>', unsafe_allow_html=True)
+        #st.markdown(padrao + '<b>Área</b>: ' + str(area_manutencao[n]) + '</p>', unsafe_allow_html=True)
+        #st.markdown(padrao + '<b>Tipo de solicitação</b>: ' + str(tipo_solicitacao[n]) + '</p>', unsafe_allow_html=True)
         st.markdown(padrao + '<b>Localizacao</b>: ' + str(localizacao[n]) + '</p>', unsafe_allow_html=True)
         st.markdown(padrao + '<b>Data da Solicitação</b>: ' + str(data_hora[n]) + '</p>', unsafe_allow_html=True)
         st.markdown(alerta + '<b>Descrição</b>: ' + str(descricao_sucinta[n]) + '</p>', unsafe_allow_html=True)
@@ -202,20 +216,48 @@ if (pg == 'Edição individual'):
         indice = 0
         cont = 0
         numero = ""
-        for j in status:
+        for j in status_todos:
             if j == status_multi[n]:
                 indice = cont
                 numero = j
             cont = cont + 1
 
         cont = 0
+
+        i_urg = 0
         for urg in ['Baixa', 'Média', 'Alta']:
-            if urg ==urg_multi[n]:
+            if urg == urg_multi[n]:
                 i_urg = cont
                 break
             cont+=1
+
+        i_area = 0
+        for urg in areas:
+            if urg == area_manutencao[n]:
+                i_area = cont
+                break
+            cont+=1
+
+
         with st.form(key='my_form'):
-            status_reg = st.selectbox('Selecione o status:', status, index=indice)
+            status_reg = st.selectbox('Selecione o status:', status_todos, index=indice)
+            area_reg = st.selectbox('Selecione a área:', areas, index=i_area)
+
+            cont=0
+            i_area = 0
+            for urg in areas:
+                if urg == area_reg:
+                    i_area = cont
+                    break
+                cont += 1
+
+            i_tipo = 0
+            for urg in tipos[i_area]:
+                if urg == tipo_solicitacao[n]:
+                    i_tipo = cont
+                    break
+                cont += 1
+            tipo_reg = st.selectbox('Selecione o tipo de solicitação:', tipos[i_area], index=i_tipo)
             obs_usr = st.text_area('Observação para o Usuário:', value=obs_usuario[n])
             obs_int = st.text_area('Observação Interna:', value=obs_interna[n])
             urg_m = st.selectbox('Urgência Multi:', ['Baixa','Média','Alta'],index=i_urg)
@@ -225,17 +267,19 @@ if (pg == 'Edição individual'):
             botao = st.form_submit_button('Registrar')
 
         if (botao == True and s == a):
-            if (sheet.cell(celula.row, 8).value == ordem_servico[n] and sheet.cell(celula.row, celula.row, 8).value != ''):
+            if (sheet.cell(celula.row, 9).value == ordem_servico[n] and sheet.cell(celula.row, 9).value != ''):
                 with st.spinner('Registrando dados...Aguarde!'):
                     st.markdown(infor + '<b>Registro efetuado!</b></p>', unsafe_allow_html=True)
 
                     sheet.update_acell('K' + str(celula.row), urg_m)  # Status
                     sheet.update_acell('L' + str(celula.row), status_reg)  # os
+                    sheet.update_acell('C' + str(celula.row), area_reg)
+                    sheet.update_acell('D' + str(celula.row), tipo_reg)
                     sheet.update_acell('M' + str(celula.row), obs_usr)  # obs_email
                     sheet.update_acell('N' + str(celula.row), obs_int)  # obs_interna
 
                     data_hoje = datetime.today()
-                    data_reg = datetime.strptime(data_hoje, '%dd/%mm/%YYYY')
+                    data_reg = data_hoje.strftime('%d/%m/%Y')
                     sheet.update_acell('O' + str(celula.row), data_reg)
 
                 st.success('Registro efetuado!')
@@ -336,7 +380,16 @@ elif pg == 'Edição em Lote':
 
         # procurando status equivalente na lista
         with st.form(key='my_form'):
-            status_reg = st.selectbox('Selecione o status:', status)
+            status_reg = st.selectbox('Selecione o status:', status_todos)
+            area_reg = st.selectbox('Selecione a área:', areas)
+            cont=0
+            i_area = 0
+            for urg in areas:
+                if urg == area_reg:
+                    i_area = cont
+                    break
+                cont += 1
+            tipo_reg = st.selectbox('Selecione o tipo de solicitação:', tipos[i_area])
             obs_usr = st.text_area('Observação para o Usuário:', value='')
             obs_int = st.text_area('Observação Interna:', value='')
             urg_m = st.selectbox('Urgência Multi:', ['Baixa','Média','Alta'])
@@ -352,16 +405,21 @@ elif pg == 'Edição em Lote':
                     # print(sheet.cell(celula.row, 20).value)
                     # print(repeticao)
                     # print(selecionado_i)
-                    if (sheet.cell(celula.row, 20).value == selecionado_i and sheet.cell(celula.row,
-                                                                                         20).value != '' and repeticao == 0):
+                    if (sheet.cell(celula.row, 9).value == selecionado_i and sheet.cell(celula.row,
+                                                                                         9).value != '' and repeticao == 0):
                         efetuado = 1
                         if urg_m!='':
-                            sheet.update_acell('K' + str(celula.row), urg_m) 
+                            sheet.update_acell('K' + str(celula.row), urg_m)
+
+                        if area_reg!='':
+                            sheet.update_acell('C' + str(celula.row), area_reg)
+                        if tipo_reg!='':
+                            sheet.update_acell('D' + str(celula.row), tipo_reg)
                             
                         if (status_reg != ''):
                             sheet.update_acell('L' + str(celula.row), status_reg)      
                             data_hoje = datetime.today()
-                            data_reg = datetime.strptime(data_hoje, '%dd/%mm/%YYYY')
+                            data_reg = data_hoje.strftime('%d/%m/%Y')
                             sheet.update_acell('O' + str(celula.row), data_reg)
                         
                         # sheet.update_acell('R' + str(celula.row), '')  # apagar Sim para enviar e-mail
@@ -387,130 +445,13 @@ elif pg == 'Consulta':
 
     # PÁGINA DE CONSULTA ************************************************************************************************
 
-    # dados = sheet.get_all_records()  # Get a list of all records
-    # df = pd.DataFrame(dados)
-    n_solicitacao.append('')
-    nome.append('')
-    telefone.append('')
-    predio.append('')
-    sala.append('')
-    data.append('')
-    observacao.append('')
-    os.append('')
-    obsemail.append('')
-    obsinterna.append('')
-    stat.append('')
-
-    for dic in df.index:
-        if df['localizacao'][dic] != '':
-            # print(df['Código da UFT'][dic])
-            data_hora.append(df['data_hora'][dic])
-            nome_solicitante.append(df['nome_solicitante'][dic])
-            area_manutencao.append(df['area_manutencao'][dic])
-            tipo_solicitacao.append(df['tipo_solicitacao'][dic])
-            descricao_sucinta.append(df['descricao_sucinta'][dic])
-            localizacao.append(df['localizacao'][dic])
-            info_adicionais.append(df['info_adicionais'][dic])
-            data_solicitacao.append(df['data_solicitacao'][dic])
-            urg_ufes.append(df['urg_ufes'][dic])
-            urg_multi.append(df['urg_multi'][dic])
-            status_multi.append(df['status_multi'][dic])
-            data_status.append(df['data_status'][dic])
-            alerta_coluna.append(df['alerta_coluna'][dic])
-            pontos.append(df['pontos'][dic])
-            ordem_servico.append(df['ordem_servico'][dic])
-            obs_usuario.append(df['obs_usuario'][dic])
-            obs_interna.append(df['obs_interna'][dic])
-
     st.markdown(cabecalho, unsafe_allow_html=True)
     st.subheader(pg)
     titulos = ['data_hora','nome_solicitante','area_manutencao','tipo_solicitacao','descricao_sucinta','info_adicionais','data_solicitacao','urg_ufes','urg_multi','status_multi','data_status','alerta_coluna','pontos','ordem_servico','obs_usuario','obs_interna']
-    with st.form(key='form1'):
-        tit_plan = titulos
-        coluna_busca = st.selectbox('Coluna para busca por argumento', tit_plan)
-        texto = st.text_input('Busca por argumento na coluna selecionada: ')
-        col1, col2 = st.columns(2)
-        col3, col4 = st.columns(2)
-        col5, col6 = st.columns(2)
-        filtrar = []
 
-        dados = df[titulos]
-        valor = data_solicitacao
-        valor = list(dict.fromkeys(valor))  # removendo valores duplicados
-        valor = sorted(valor)  # ordenando lista de string
-        filtro_data = col1.multiselect('Filtrar por Data:', valor)
-        if (len(filtro_data) > 0):
-            if (len(filtrar) > 0):
-                filtrar = filtrar & dados['data_solicitacao'].isin(filtro_data)
-            else:
-                filtrar = dados['data_solicitacao'].isin(filtro_data)
+    sample_data = df[titulos]
 
-        valor = ordem_servico
-        valor = list(dict.fromkeys(valor))  # removendo valores duplicados
-        valor = sorted(valor)  # ordenando lista de string
-        filtro_os = col2.multiselect('Filtrar por Ordem de Serviço:', valor)
-        if (len(filtro_os) > 0):
-            if (len(filtrar) > 0):
-                filtrar = filtrar & dados['ordem_servico'].isin(filtro_os)
-            else:
-                filtrar = dados['ordem_servico'].isin(filtro_os)
-        valor = nome_solicitante
-        valor = list(dict.fromkeys(valor))  # removendo valores duplicados
-        valor = sorted(valor)  # ordenando lista de string
-        filtro_solicitante = col3.multiselect('Filtrar por Nome do Solicitante:', valor)
-        if (len(filtro_solicitante) > 0):
-            # filtro_solicitante=valor
-            if (len(filtrar) > 0):
-                filtrar = filtrar & dados['nome_solicitante'].isin(filtro_solicitante)
-            else:
-                filtrar = dados['nome_solicitante'].isin(filtro_solicitante)
+    AwesomeTable(pd.json_normalize(sample_data), columns=titulos, show_order=True, show_search=True, show_search_order_in_sidebar=True)
 
-        valor = status_multi
-        valor = list(dict.fromkeys(valor))  # removendo valores duplicados
-        valor = sorted(valor)  # ordenando lista de string
-        filtro_status = col4.multiselect('Filtrar por Status:', valor)
-        if (len(filtro_status) > 0):
-            if (len(filtrar) > 0):
-                filtrar = filtrar & dados['status_multi'].isin(filtro_status)
-            else:
-                filtrar = dados['status_multi'].isin(filtro_status)
-
-        valor = localizacao
-        valor = list(dict.fromkeys(valor))  # removendo valores duplicados
-        valor = sorted(valor)  # ordenando lista de string
-        filtro_predio = col5.multiselect('Filtrar por localização:', valor)
-        if (len(filtro_predio) > 0):
-            if (len(filtrar) > 0):
-                filtrar = filtrar & dados['localizacao'].isin(filtro_predio)
-            else:
-                filtrar = dados['localizacao'].isin(filtro_predio)
-
-        btn1 = st.form_submit_button('Filtrar')
-        if (len(filtrar) == 0):
-            filtrar = titulos
-    if (btn1 == True):
-        # dados=df[titulos]
-        # filtrar=dados[titulo_coluna].isin([filtro])
-        # print(filtrar)
-        # if(len(filtrar)>0):
-        if (texto != '' and coluna_busca != ''):
-            dad1 = dados[filtrar][dados[coluna_busca].str.contains(texto, na=False)]
-            # dad2 = dados[filtrar][dados['Carimbo de data/hora'].str.contains(texto, na=False)]
-            dad = dad1
-        else:
-            dad = dados[filtrar]
-        st.dataframe(dad)  # dados[filtrar].head()
-        df_xlsx = to_excel(dad)
-        st.download_button(label='📥 Baixar Resultado do Filtro em Excel', data=df_xlsx,
-                           file_name='filtro_planilha.xlsx')
-        # dados_graf=pd.DataFrame(dados[filtrar],columns=[coluna1,coluna2])
-        # fig = px.bar(dados_graf, x=coluna1, y=coluna2, barmode='group', height=400)
-        # st.plotly_chart(fig)
-        # plost.line_chart(dados_graf, coluna1, coluna2)
-
-        # else:
-        #    st.dataframe(df[titulos])
-    else:
-        st.dataframe(df[titulos])
 
 
