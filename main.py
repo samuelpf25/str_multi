@@ -21,11 +21,23 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # 1) DECLARAÇÃO DE VARIÁVEIS GLOBAIS ####################################################################################
 scope = ['https://spreadsheets.google.com/feeds']
 k = "@MEngenharia"
-creds = ServiceAccountCredentials.from_json_keyfile_name("controle.json", scope)
+json = {
+  "type": st.secrets["type"],
+  "project_id": st.secrets["project_id"],
+  "private_key_id": st.secrets["project_id"],
+  "private_key": st.secrets["private_key"],
+  "client_email": st.secrets["client_email"],
+  "client_id": st.secrets["client_id"],
+  "auth_uri": st.secrets["auth_uri"],
+  "token_uri": st.secrets["token_uri"],
+  "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
+  "client_x509_cert_url": st.secrets["client_x509_cert_url"],
+  "universe_domain": st.secrets["universe_domain"],
+}
+
+creds = ServiceAccountCredentials.from_json_keyfile_name(json, scope)
 
 cliente = gspread.authorize(creds)
-
-# sheet = cliente.open("Ciente Limpeza").sheet1 # Open the spreadhseet
 
 sheet = cliente.open_by_url(
     'https://docs.google.com/spreadsheets/d/1uS7_GS6KR9ax4tOhAeEzhpnlPJX6_13m0CCD_9QWbKk/edit?gid=0#gid=0').get_worksheet(
