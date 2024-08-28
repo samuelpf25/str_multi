@@ -602,25 +602,27 @@ elif pg == 'Consulta':
         #    st.dataframe(df[titulos])
     else:
         st.dataframe(df[titulos])
+    
+    
+    options = {
+        "chart": {
+            "toolbar": {
+                "show": False
+            }
+        },
 
-    # options = {
-    #     "chart": {
-    #         "toolbar": {
-    #             "show": False
-    #         }
-    #     },
-    #
-    #     "labels": dad['status_multi']
-    #     ,
-    #     "legend": {
-    #         "show": True,
-    #         "position": "bottom",
-    #     }
-    # }
-    #
-    # series = dad['ordem_servico']
-    #
-    # st_apexcharts(options, series, 'donut', '600', 'title')
+        "labels": dad['status_multi']
+        ,
+        "legend": {
+            "show": True,
+            "position": "bottom",
+        }
+    }
+
+    series = dad['ordem_servico']
+    print(dad['ordem_servico'])
+    st_apexcharts(options, series, 'donut', '600', 'title')
+    
 elif pg == 'Prioridades do dia':
     st.markdown(cabecalho, unsafe_allow_html=True)
     st.subheader(pg)
