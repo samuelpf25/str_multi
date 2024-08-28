@@ -604,28 +604,25 @@ elif pg == 'Consulta':
     else:
         st.dataframe(df[titulos])
 
-    print(dad['ordem_servico'])
-    options = {
-        "chart": {
-            "toolbar": {
-                "show": False
-            }
-        },
-
-        "labels": dad['status_multi']
-        ,
-        "legend": {
-            "show": True,
-            "position": "bottom",
-        }
-    }
-    dad['ordem_servico'] = dad['ordem_servico'].str.replace(' ', '').astype('int', errors='ignore')
-
-# Remover os valores que não puderam ser convertidos
-    dad = dad.dropna(subset=['ordem_servico'])
-    series = dad['ordem_servico']
-
-    st_apexcharts(options, series, 'donut', '600', 'title')
+    # print(dad['ordem_servico'])
+    # options = {
+    #     "chart": {
+    #         "toolbar": {
+    #             "show": False
+    #         }
+    #     },
+    # 
+    #     "labels": dad['status_multi']
+    #     ,
+    #     "legend": {
+    #         "show": True,
+    #         "position": "bottom",
+    #     }
+    # }
+    # 
+    # series = dad['ordem_servico']
+    # 
+    # st_apexcharts(options, series, 'donut', '600', 'title')
 
 elif pg == 'Prioridades do dia':
     st.markdown(cabecalho, unsafe_allow_html=True)
