@@ -603,7 +603,7 @@ elif pg == 'Consulta':
     else:
         st.dataframe(df[titulos])
     
-    print(dad['ordem_servico'])
+    print(dad)
     
     
 elif pg == 'Prioridades do dia':
