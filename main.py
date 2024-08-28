@@ -620,7 +620,7 @@ elif pg == 'Consulta':
         }
     }
 
-    series = dad['ordem_servico']
+    series = dad['ordem_servico'].str.replace(' ', '').astype(int)
 
     st_apexcharts(options, series, 'donut', '600', 'title')
 
