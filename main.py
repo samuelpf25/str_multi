@@ -619,8 +619,11 @@ elif pg == 'Consulta':
             "position": "bottom",
         }
     }
+    dad['ordem_servico'] = dad['ordem_servico'].str.replace(' ', '').astype('int', errors='ignore')
 
-    series = dad['ordem_servico'].str.replace(' ', '').astype(int)
+# Remover os valores que não puderam ser convertidos
+    dad = dad.dropna(subset=['ordem_servico'])
+    series = dad['ordem_servico']
 
     st_apexcharts(options, series, 'donut', '600', 'title')
 
