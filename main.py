@@ -525,6 +525,7 @@ elif pg == 'Consulta':
         filtrar = []
 
         dados = df[titulos]
+        dad = dados
         valor = data_solicitacao
         valor = list(dict.fromkeys(valor))  # removendo valores duplicados
         valor = sorted(valor)  # ordenando lista de string
@@ -602,10 +603,27 @@ elif pg == 'Consulta':
         #    st.dataframe(df[titulos])
     else:
         st.dataframe(df[titulos])
-    
-    print(dad)
-    
-    
+
+    print(dad['ordem_servico'])
+    options = {
+        "chart": {
+            "toolbar": {
+                "show": False
+            }
+        },
+
+        "labels": dad['status_multi']
+        ,
+        "legend": {
+            "show": True,
+            "position": "bottom",
+        }
+    }
+
+    series = dad['ordem_servico']
+
+    st_apexcharts(options, series, 'donut', '600', 'title')
+
 elif pg == 'Prioridades do dia':
     st.markdown(cabecalho, unsafe_allow_html=True)
     st.subheader(pg)
