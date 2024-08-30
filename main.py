@@ -96,6 +96,8 @@ pontos = []
 obs_usuario = []
 obs_interna = []
 posto_demanda = []
+status_ufes=[]
+
 
 horas = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
          '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30']
@@ -160,6 +162,7 @@ if (pg == 'Edição individual'):
     # print(filtrando)
     filtra_os = col2.text_input('Filtrar OS:', value='')
     # data_hora	nome_solicitante	area_manutencao	tipo_solicitacao	descricao_sucinta	localizacao	info_adicionais	data_solicitacao		urg_ufes	urg_multi	status_multi	data_status	alerta_coluna	pontos
+
     for dic in df.index:
         if (filtrando == ['Todas Ativas']):
             filtrando = status_todos
@@ -185,6 +188,7 @@ if (pg == 'Edição individual'):
                 obs_usuario.append(df['obs_usuario'][dic])
                 obs_interna.append(df['obs_interna'][dic])
                 posto_demanda.append(df['posto_demanda'][dic])
+                status_ufes.append(df['status_ufes'][dic])
 
         else:
 
@@ -207,6 +211,7 @@ if (pg == 'Edição individual'):
                 obs_usuario.append(df['obs_usuario'][dic])
                 obs_interna.append(df['obs_interna'][dic])
                 posto_demanda.append(df['posto_demanda'][dic])
+                status_ufes.append(df['status_ufes'][dic])
 
     if len(data_hora) > 1 and (filtra_os != ''):
         st.markdown(
@@ -230,6 +235,7 @@ if (pg == 'Edição individual'):
         st.markdown(padrao + '<b>Informações adicionais</b>: ' + info_adicionais[n] + '</p>', unsafe_allow_html=True)
         st.markdown(padrao + '<b>Urgência UFES</b>: ' + urg_ufes[n] + '</p>', unsafe_allow_html=True)
         st.markdown(padrao + '<b>Posto / Demanda</b>: ' + posto_demanda[n] + '</p>', unsafe_allow_html=True)
+        st.markdown(padrao + 'Status UFES: ' + status_ufes[n] + '</p>', unsafe_allow_html=True)
 
         celula = sheet.find(str(ordem_servico[n]))
         # procurando status equivalente na lista
@@ -488,6 +494,7 @@ elif pg == 'Consulta':
     ordem_servico.append('')
     obs_usuario.append('')
     obs_interna.append('')
+    status_ufes.append('')
 
     for dic in df.index:
         if df['localizacao'][dic] != '':
@@ -509,12 +516,13 @@ elif pg == 'Consulta':
             ordem_servico.append(df['ordem_servico'][dic])
             obs_usuario.append(df['obs_usuario'][dic])
             obs_interna.append(df['obs_interna'][dic])
+            obs_interna.append(df['status_ufes'][dic])
 
     st.markdown(cabecalho, unsafe_allow_html=True)
     st.subheader(pg)
     titulos = ['data_hora', 'nome_solicitante', 'area_manutencao', 'tipo_solicitacao', 'descricao_sucinta',
                'info_adicionais', 'data_solicitacao', 'urg_ufes', 'urg_multi', 'status_multi', 'data_status',
-               'alerta_coluna', 'pontos', 'ordem_servico', 'obs_usuario', 'obs_interna', 'localizacao','posto_demanda']
+               'alerta_coluna', 'pontos', 'ordem_servico', 'obs_usuario', 'obs_interna', 'localizacao','posto_demanda','status_ufes']
     with st.form(key='form1'):
         tit_plan = titulos
         coluna_busca = st.selectbox('Coluna para busca por argumento', tit_plan)
@@ -611,7 +619,7 @@ elif pg == 'Consulta':
     #             "show": False
     #         }
     #     },
-    # 
+    #
     #     "labels": dad['status_multi']
     #     ,
     #     "legend": {
@@ -619,9 +627,9 @@ elif pg == 'Consulta':
     #         "position": "bottom",
     #     }
     # }
-    # 
+    #
     # series = dad['ordem_servico']
-    # 
+    #
     # st_apexcharts(options, series, 'donut', '600', 'title')
 
 elif pg == 'Prioridades do dia':
