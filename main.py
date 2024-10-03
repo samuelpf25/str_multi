@@ -14,8 +14,7 @@ from streamlit_apexjs import st_apexcharts
 hide_streamlit_style = """
 <meta http-equiv="Content-Language" content="pt-br">
 <style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
+
 </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
