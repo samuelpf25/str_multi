@@ -65,4 +65,3 @@ uritemplate==3.0.1
 urllib3==2.2.2
 watchdog==4.0.2
 XlsxWriter==3.2.0
-streamlit-apex-charts
