@@ -8,7 +8,7 @@ from io import BytesIO
 # from pyxlsb import open_workbook as open_xlsb
 # from awesome_table import AwesomeTable
 # from awesome_table.column import (Column, ColumnDType)
-from streamlit_apexjs import st_apexcharts
+#from streamlit_apexjs import st_apexcharts
 
 # ocultar menu
 hide_streamlit_style = """
