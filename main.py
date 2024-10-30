@@ -1,4 +1,4 @@
-# última edição 28/08/2024
+# última edição 30/10/2024
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
@@ -63,7 +63,7 @@ def conexao(aba="Outros",
     return sheet, dados, df
 
 
-areas = ['Elétrica ou Iluminação', 'Rede de Água ou Esgoto', 'Outros']
+areas = ['Elétrica ou Iluminação', 'Rede de Água ou Esgoto', 'Outros', 'Pintura']
 tipos = {
     areas[0]: ['Tomada (instalação/desinstalação/manutenção)', 'Iluminação (instalação/desinstalação/manutenção)',
                'Manutenção em quadro elétrico', 'Falta de energia', 'Outros'],
@@ -71,7 +71,8 @@ tipos = {
                'Vaso Sanitário ou Mictório (instalação/desinstalação/manutenção)',
                'Pia (instalação/desinstalação/manutenção)', 'Outros', 'Bebedouros', 'Reservatório'],
     areas[2]: ['Porta/Fechadura/Janelas/Vidros', 'Pintura', 'Passarela e Calçada', 'Cobertura/Telhado',
-               'Alvenaria/Reparos', 'Outros', 'Revestimentos', 'Estrutura']
+               'Alvenaria/Reparos', 'Outros', 'Revestimentos', 'Estrutura'],
+    areas[3]: ['Pintura']
 }
 
 #
