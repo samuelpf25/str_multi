@@ -50,7 +50,7 @@ dados = sheet.get_all_records()  # Get a list of all records
 df = pd.DataFrame(dados)
 df = df.astype(str)
 
-print(df)
+#print(df)
 
 def conexao(aba="Outros",
             chave='1uS7_GS6KR9ax4tOhAeEzhpnlPJX6_13m0CCD_9QWbKk',
@@ -168,8 +168,8 @@ if (pg == 'Edição individual'):
         if (filtrando == ['Todas Ativas']):
             filtrando = status_todos
         if filtra_os != '':
-            if df['status_multi'][dic] in filtrando and df['area_manutencao'][dic] != '' and str(
-                    df['ordem_servico'][dic]) == str(filtra_os):
+            if df['status_multi'][dic] in filtrando and df['data_hora'][dic] != '' and str(
+                    df['ordem_servico'][dic]) == str(filtra_os): 
                 # print(df['Código da UFT'][dic])
                 data_hora.append(df['data_hora'][dic])
                 nome_solicitante.append(df['nome_solicitante'][dic])
@@ -193,7 +193,7 @@ if (pg == 'Edição individual'):
 
         else:
 
-            if df['status_multi'][dic] in filtrando and df['area_manutencao'][dic] != '':
+            if df['status_multi'][dic] in filtrando and df['data_hora'][dic] != '':
                 data_hora.append(df['data_hora'][dic])
                 nome_solicitante.append(df['nome_solicitante'][dic])
                 area_manutencao.append(df['area_manutencao'][dic])
