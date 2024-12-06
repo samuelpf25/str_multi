@@ -50,6 +50,7 @@ dados = sheet.get_all_records()  # Get a list of all records
 df = pd.DataFrame(dados)
 df = df.astype(str)
 
+print(df)
 
 def conexao(aba="Outros",
             chave='1uS7_GS6KR9ax4tOhAeEzhpnlPJX6_13m0CCD_9QWbKk',
